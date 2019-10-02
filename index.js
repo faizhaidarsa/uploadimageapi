@@ -12,6 +12,7 @@ const port = 9000
 var bodyParser = require('body-parser')
 var cors = require('cors')
 var multer = require('multer')
+var fs = require('fs')
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -41,19 +42,26 @@ let upload = multer({
 })
 
 app.post('/uploadimage',upload.single('gambar'), (req,res)=>{
-    let data=JSON.parse(req.body.propgambar)
-    db.query(`insert into gambar values (0,'${data.nama}','files/${req.file.filename}',${data.price})`,(err,result)=>{
-        if(err)throw err
-        console.log(result);
-    })
+    
+    try {
+        if(req.validation) throw req.validation
+        let data = JSON.parse(req.body.propgambar)
+        db.query(`insert into gambar values (0,'${data.nama}','files/${req.file.filename}',${data.price})`, (err, result) => {
+            if (err) throw err
+            res.send('Success')
+        })
 
-    // pakai split
-    // let data=req.body.propgambar.split('||') 
-    // db.query(`insert into gambar values (0,'${data[0]}','files/${req.file.filename}',${data[1]})`,(err,result)=>{
-    //     if(err)throw err
-    //     console.log(result);
-    // })
-    res.send('Success')
+        // pakai split
+        // let data=req.body.propgambar.split('||') 
+        // db.query(`insert into gambar values (0,'${data[0]}','files/${req.file.filename}',${data[1]})`,(err,result)=>{
+        //     if(err)throw err
+        //     res.send('Success')
+        // })    
+    } catch (error) {
+        fs.unlinkSync(req.file.path)
+        console.log(error);
+    }
+    
 })
 
 app.get('/getall',(req,res)=>{
