@@ -41,10 +41,18 @@ let upload = multer({
 })
 
 app.post('/uploadimage',upload.single('gambar'), (req,res)=>{
-    db.query(`insert into gambar values (0,'${req.body.namagambar}','${req.file.filename}')`,(err,result)=>{
+    let data=JSON.parse(req.body.propgambar)
+    db.query(`insert into gambar values (0,'${data.nama}','files/${req.file.filename}',${data.price})`,(err,result)=>{
         if(err)throw err
         console.log(result);
     })
+
+    // pakai split
+    // let data=req.body.propgambar.split('||') 
+    // db.query(`insert into gambar values (0,'${data[0]}','files/${req.file.filename}',${data[1]})`,(err,result)=>{
+    //     if(err)throw err
+    //     console.log(result);
+    // })
     res.send('Success')
 })
 
